@@ -1,0 +1,20 @@
+{
+  "name": "olje-per-nordmann",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "scrape": "ts-node scripts/fetch_nbim_and_ssb.ts",
+    "format": "node -e \"console.log('ok')\"",
+    "build:web": "npm --prefix web run build",
+    "dev:web": "npm --prefix web run dev"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
