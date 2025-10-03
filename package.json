@@ -3,14 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "scrape": "ts-node scripts/fetch_nbim_and_ssb.ts",
-    "format": "node -e \"console.log('ok')\"",
-    "build:web": "npm --prefix web run build",
-    "dev:web": "npm --prefix web run dev"
+    "scrape:fund": "npx tsx scripts/fetch_nbim_fund.ts",
+    "scrape:pop": "npx tsx scripts/fetch_ssb_pop.ts",
+    "scrape": "npm run scrape:pop && npm run scrape:fund"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "puppeteer": "^22.0.0",
+    "tsx": "^4.7.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.12",

@@ -1,0 +1,39 @@
+name: Scrape NBIM (15m) + update derived per-capita
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  run-fund-scraper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        run: npm ci || npm i
+
+      - name: Scrape NBIM (fund only) and update series
+        run: npm run scrape:fund
+
+      - name: Commit & push changes (if any)
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/fund_timeseries.json data/olje_per_capita.json
+            git commit -m "chore: fund 15m + per-capita (derived) [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi

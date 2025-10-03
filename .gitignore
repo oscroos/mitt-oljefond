@@ -1,0 +1,25 @@
+# root & general
+node_modules/
+**/node_modules/
+dist/
+build/
+.tmp/
+.cache/
+*.log
+*.tsbuildinfo
+.DS_Store
+
+# env/secrets
+.env
+.env.*
+!.env.example
+
+# Next.js (web)
+web/.next/
+web/out/
+web/.vercel/
+
+# Vercel / Turborepo (if any)
+.vercel/
+.turbo/
+EOF
