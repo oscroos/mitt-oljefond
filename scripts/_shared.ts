@@ -11,6 +11,9 @@ export const DATA_DIR = path.join(process.cwd(), "data");
 export const FUND_PATH = path.join(DATA_DIR, "fund_timeseries.json");
 export const POP_PATH = path.join(DATA_DIR, "pop_daily.json");
 export const PER_CAP_PATH = path.join(DATA_DIR, "olje_per_capita.json");
+export const USDNOK_PATH = path.join(process.cwd(), "data", "usd_nok.json");
+
+export type FxRow = { date: string; source: "ExchangeRate-API"; usdnok: number };
 
 export function readJsonArray<T>(p: string): T[] {
     if (!fs.existsSync(p)) return [];

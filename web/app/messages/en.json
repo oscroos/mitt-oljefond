@@ -1,0 +1,13 @@
+{
+    "title": "Norway’s Oil Fund per person",
+    "updated": "Updated",
+    "last15": "Last 15 min",
+    "lastHour": "Last hour",
+    "last24h": "Last 24 h",
+    "perPerson": "Per person",
+    "card.perCap": "Value per person",
+    "card.totalFund": "Total fund value",
+    "card.population": "Norway’s population",
+    "footer.sources": "Sources: NBIM (fund value) and SSB (population). Updated every 15 minutes.",
+    "footer.lastFx": "Latest FX: 1 USD = {rate} NOK"
+}

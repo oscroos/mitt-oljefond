@@ -1,0 +1,13 @@
+{
+    "title": "Oljefondet per nordmann",
+    "updated": "Oppdatert",
+    "last15": "Siste 15 min",
+    "lastHour": "Siste time",
+    "last24h": "Siste 24 t",
+    "perPerson": "Per person",
+    "card.perCap": "Verdi per nordmann",
+    "card.totalFund": "Oljefondets totale verdi",
+    "card.population": "Norges befolkning",
+    "footer.sources": "Kilder: NBIM (fondets verdi) og SSB (befolkning). Oppdateres hvert 15. minutt.",
+    "footer.lastFx": "Siste kurs: 1 USD = {rate} NOK"
+}

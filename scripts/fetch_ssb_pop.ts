@@ -1,7 +1,10 @@
 // scripts/fetch_ssb_pop.ts
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
-import { H, POP_PATH, readJsonArray, writeJsonArray, parseNumberLike } from "./_shared";
+import {
+    H, POP_PATH, readJsonArray, writeJsonArray, parseNumberLike,
+    USDNOK_PATH, type FxRow
+} from "./_shared.js";
 
 type PopRow = { date: string; pop: number };
 
@@ -67,21 +70,69 @@ async function fetchPopulationFromHomepage(): Promise<number> {
     throw new Error("SSB: fant ikke gyldig befolkningstall");
 }
 
+type ExchangeRateAPIResponse = {
+    rates?: Record<string, number>;
+    // (other fields exist, but we only care about rates)
+};
+
+function hasRates(x: unknown): x is { rates: Record<string, number> } {
+    return !!x && typeof x === "object" && "rates" in x && typeof (x as any).rates === "object";
+}
+
+// Fetch USD→NOK from ExchangeRate-API (daily is fine)
+async function fetchUSDNOK(): Promise<number> {
+    // Two options:
+    // 1) With API key (set EXCHANGERATE_API_KEY in env):
+    //    https://v6.exchangerate-api.com/v6/<KEY>/latest/USD
+    // 2) Open endpoint (no key; requires attribution):
+    //    https://open.er-api.com/v6/latest/USD
+    const KEY = process.env.EXCHANGERATE_API_KEY?.trim();
+    const url = KEY
+        ? `https://v6.exchangerate-api.com/v6/${KEY}/latest/USD`
+        : `https://open.er-api.com/v6/latest/USD`;
+
+    const res = await fetch(url, { headers: { ...H, Accept: "application/json" } });
+    if (!res.ok) throw new Error(`ExchangeRate-API HTTP ${res.status}`);
+
+    const data: unknown = await res.json(); // <-- unknown by design
+    if (!hasRates(data)) throw new Error("ExchangeRate-API: payload missing rates");
+
+    const rate = data.rates.NOK;
+    if (typeof rate !== "number" || !Number.isFinite(rate) || rate <= 0) {
+        throw new Error("ExchangeRate-API: NOK rate missing/invalid");
+    }
+    return rate;
+}
+
 async function main() {
     // Use UTC calendar date, since Actions runs in UTC
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    const series = readJsonArray<PopRow>(POP_PATH);
 
-    // If we already have today's date, do nothing (idempotent daily run)
-    if (series.some(r => r.date === today)) {
+    // --- (A) Population (idempotent once per day)
+    const popSeries = readJsonArray<PopRow>(POP_PATH);
+    if (popSeries.some(r => r.date === today)) {
         console.log(`Population for ${today} already recorded; skipping.`);
-        return;
+    } else {
+        const pop = await fetchPopulationFromHomepage();
+        popSeries.push({ date: today, pop });
+        writeJsonArray(POP_PATH, popSeries);
+        console.log("Population appended:", { date: today, pop });
     }
 
-    const pop = await fetchPopulationFromHomepage();
-    series.push({ date: today, pop });
-    writeJsonArray(POP_PATH, series);
-    console.log("Population appended:", { date: today, pop });
+    // --- (B) USDNOK (idempotent once per day)
+    const fxSeries = readJsonArray<FxRow>(USDNOK_PATH);
+    if (fxSeries.some(r => r.date === today)) {
+        console.log(`USDNOK for ${today} already recorded; skipping.`);
+    } else {
+        try {
+            const usdnok = await fetchUSDNOK();
+            fxSeries.push({ date: today, source: "ExchangeRate-API", usdnok: Number(usdnok.toFixed(6)) });
+            writeJsonArray(USDNOK_PATH, fxSeries);
+            console.log("USDNOK appended:", { date: today, usdnok });
+        } catch (e) {
+            console.warn("USDNOK fetch failed (non-fatal):", e);
+        }
+    }
 }
 
 main().catch((err) => {

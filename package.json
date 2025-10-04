@@ -5,7 +5,8 @@
   "scripts": {
     "scrape:fund": "npx tsx scripts/fetch_nbim_fund.ts",
     "scrape:pop": "npx tsx scripts/fetch_ssb_pop.ts",
-    "scrape": "npm run scrape:pop && npm run scrape:fund"
+    "scrape": "npm run scrape:pop && npm run scrape:fund",
+    "dev:web": "npm --prefix web run dev"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
